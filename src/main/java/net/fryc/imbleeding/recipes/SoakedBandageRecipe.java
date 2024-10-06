@@ -15,6 +15,7 @@ import net.minecraft.world.World;
 public class SoakedBandageRecipe extends SpecialCraftingRecipe {
 
     private static final int BANDAGES_COUNT = 2;
+    private static final int POTIONS_COUNT = 1;
 
     public SoakedBandageRecipe(CraftingRecipeCategory category) {
         super(category);
@@ -24,32 +25,34 @@ public class SoakedBandageRecipe extends SpecialCraftingRecipe {
     public boolean matches(CraftingRecipeInput recipeInput, World world) {
         int bandagesPresent = 0;
         int potionsPresent = 0;
-        for(ItemStack stack : recipeInput.getStacks()){
-            if(stack.isOf(ModItems.BANDAGE)){
+        for (ItemStack stack : recipeInput.getStacks()) {
+            if (stack.isOf(ModItems.BANDAGE)) {
                 bandagesPresent++;
-            }
-            else if(stack.isOf(Items.LINGERING_POTION)){
+            } else if (stack.isOf(Items.LINGERING_POTION)) {
                 potionsPresent++;
-            }
-            else if(!stack.isEmpty()){
+            } else if (!stack.isEmpty()) {
                 return false;
             }
         }
-        return bandagesPresent == BANDAGES_COUNT && potionsPresent == 1;
+        return bandagesPresent == BANDAGES_COUNT && potionsPresent == POTIONS_COUNT;
     }
 
     @Override
     public ItemStack craft(CraftingRecipeInput recipeInput, RegistryWrapper.WrapperLookup wrapperLookup) {
         ItemStack potion = ItemStack.EMPTY;
-        for(ItemStack stack : recipeInput.getStacks()){
-            if(stack.isOf(Items.LINGERING_POTION)){
+        for (ItemStack stack : recipeInput.getStacks()) {
+            if (stack.isOf(Items.LINGERING_POTION)) {
                 potion = stack;
+                break;
             }
         }
-        if(potion.isEmpty()) return potion;
+        if (potion.isEmpty()) return potion;
 
         ItemStack bandages = new ItemStack(ModItems.SOAKED_BANDAGE, BANDAGES_COUNT);
-        bandages.set(DataComponentTypes.POTION_CONTENTS, (PotionContentsComponent)potion.get(DataComponentTypes.POTION_CONTENTS));
+        PotionContentsComponent potionContents = (PotionContentsComponent) potion.get(DataComponentTypes.POTION_CONTENTS);
+        if (potionContents != null) {
+            bandages.set(DataComponentTypes.POTION_CONTENTS, potionContents);
+        }
 
         return bandages;
     }
